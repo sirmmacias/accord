@@ -42,3 +42,6 @@ spec/examples.txt
 .approvals
 regression/fixtures/approvals
 config/pact_broker.local.yml
+vendor/
+vendor/bundle/
+vendor/bundle/**/*

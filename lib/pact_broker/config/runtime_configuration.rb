@@ -99,6 +99,21 @@ module PactBroker
         features: {}
       )
 
+      # OIDC attributes
+      attr_config(
+        oidc_enabled: false,
+        oidc_issuer: nil,
+        oidc_client_id: nil,
+        oidc_client_secret: nil,
+        oidc_discovery: true
+      )
+
+      # OpenAPI attributes
+      attr_config(
+        openapi_enabled: false,
+        openapi_file_path: "pact_broker_oas.yaml"
+      )
+
       def self.getter_and_setter_method_names
         extra_methods = [
           :warning_error_classes,
