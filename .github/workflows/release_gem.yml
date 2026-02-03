@@ -1,0 +1,61 @@
+name: Release gem
+
+on:
+  repository_dispatch:
+    types:
+      - release-triggered
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Provide custom version ONLY if the desired version cannot be determined from the commit history'
+        required: false
+      increment:
+        description: 'Provide custom increment ONLY if the desired version cannot be determined from the commit history'
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - patch
+          - minor
+          - major
+          - pre
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      with:
+        fetch-depth: 0
+    - id: release-gem
+      uses: pact-foundation/release-gem@b1b4ab9ad10605e41a34f13f1c2baae78d73bfa7 # v1
+      env:
+        GEM_HOST_API_KEY: '${{ secrets.RUBYGEMS_API_KEY }}'
+        GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        INCREMENT: '${{ github.event.inputs.increment }}${{ github.event.client_payload.increment }}'
+        VERSION: '${{ github.event.inputs.version }}${{ github.event.client_payload.version }}'
+    outputs:
+      gem_name: "${{ steps.release-gem.outputs.gem_name }}"
+      version: "${{ steps.release-gem.outputs.version }}"
+      increment: "${{ steps.release-gem.outputs.increment }}"
+
+  notify-gem-released:
+    needs: release
+    strategy:
+      matrix:
+        repository: [pact-foundation/pact-broker-docker, pact-foundation/pact_broker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify ${{ matrix.repository }} of gem release
+        uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f # v4.0.0
+        with:
+          token: ${{ secrets.GHTOKENNOTIFYPBRELEASED }}
+          repository: ${{ matrix.repository }}
+          event-type: gem-released
+          client-payload: |
+              {
+                "name": "${{ needs.release.outputs.gem_name }}",
+                "version": "${{ needs.release.outputs.version }}",
+                "increment": "${{ needs.release.outputs.increment }}"
+              }

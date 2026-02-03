@@ -1,0 +1,24 @@
+{
+  "category": "Webhooks",
+  "name": "Logs of triggered webhook",
+  "order": 49,
+  "request": {
+    "method": "GET",
+    "path_template": "/triggered-webhooks/:uuid/logs",
+    "path": "/triggered-webhooks/6cd5cc48-db3c-4a4c-a36d-e9bedeb9d91e/logs",
+    "headers": {
+      "Accept": "application/hal+json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "text/plain;charset=utf-8",
+      "vary": "Accept",
+      "content-length": "<id>",
+      "date": "<date>",
+      "server": "Webmachine-Ruby/2.0.1 Rack/3.2"
+    },
+    "body": "logs"
+  }
+}

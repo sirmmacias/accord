@@ -1,0 +1,23 @@
+{
+  "category": "Webhooks",
+  "name": "Webhooks for a provider",
+  "order": 19,
+  "request": {
+    "method": "OPTIONS",
+    "path_template": "/webhooks/provider/:provider_name",
+    "path": "/webhooks/provider/Bar",
+    "headers": {
+      "Accept": "application/hal+json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-methods": "POST, GET, OPTIONS",
+      "content-length": "<id>",
+      "date": "<date>",
+      "server": "Webmachine-Ruby/2.0.1 Rack/3.2"
+    },
+    "body": ""
+  }
+}

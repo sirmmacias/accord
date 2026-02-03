@@ -1,0 +1,23 @@
+{
+  "category": "Webhooks",
+  "name": "Webhooks for consumer and provider",
+  "order": 23,
+  "request": {
+    "method": "OPTIONS",
+    "path_template": "/webhooks/provider/:provider_name/consumer/:consumer_name",
+    "path": "/webhooks/provider/Bar/consumer/Foo",
+    "headers": {
+      "Accept": "application/hal+json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-methods": "POST, GET, OPTIONS",
+      "content-length": "<id>",
+      "date": "<date>",
+      "server": "Webmachine-Ruby/2.0.1 Rack/3.2"
+    },
+    "body": ""
+  }
+}

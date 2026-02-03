@@ -1,0 +1,44 @@
+{
+  "request": {
+    "path": "/contracts/publish",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/hal+json"
+    },
+    "body": {
+      "pacticipantName": "Foo",
+      "branch": "main",
+      "tags": [
+        "a",
+        "b"
+      ],
+      "buildUrl": "http://ci/builds/1234",
+      "contracts": [
+        {
+          "consumerName": "Foo",
+          "providerName": "Bar",
+          "specification": "pact",
+          "contentType": "application/json",
+          "content": "eyJjb25zdW1lciI6eyJuYW1lIjoiRm9vIn0sInByb3ZpZGVyIjp7Im5hbWUiOiJCYXIifSwiaW50ZXJhY3Rpb25zIjpbXX0=",
+          "onConflict": "overwrite"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/hal+json;charset=utf-8",
+      "content-length": "54",
+      "date": "<date>",
+      "server": "Webmachine-Ruby/2.0.1 Rack/3.2"
+    },
+    "body": {
+      "errors": {
+        "pacticipantVersionNumber": [
+          "is missing"
+        ]
+      }
+    }
+  }
+}
