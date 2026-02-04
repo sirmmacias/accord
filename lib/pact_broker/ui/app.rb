@@ -5,6 +5,7 @@ require "pact_broker/ui/controllers/matrix"
 require "pact_broker/ui/controllers/can_i_deploy"
 require "pact_broker/ui/controllers/error_test"
 require "pact_broker/ui/controllers/dashboard"
+require "pact_broker/ui/controllers/sessions"
 require "pact_broker/ui/helpers/haml_helpers"
 require "pact_broker/doc/controllers/app"
 
@@ -63,6 +64,14 @@ module PactBroker
           map "/dashboard" do
             use PathInfoFixer
             run PactBroker::UI::Controllers::Dashboard
+          end
+
+          map "/auth" do
+            run PactBroker::UI::Controllers::Sessions
+          end
+
+          map "/logout" do
+            run PactBroker::UI::Controllers::Sessions
           end
 
           map "/" do
