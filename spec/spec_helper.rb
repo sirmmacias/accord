@@ -19,9 +19,7 @@ require "pact_broker/policies"
 
 if ENV["OAS_COVERAGE_CHECK_ENABLED"] == "true"
   require "openapi_first"
-  OpenapiFirst::Test.setup do |test|
-    test.register("pact_broker_oas.yaml")
-  end
+  OpenapiFirst::Test.register("pact_broker_oas.yaml")
 
   at_exit do
     oas_coverage = OpenapiFirst::Test::Coverage.result.coverage

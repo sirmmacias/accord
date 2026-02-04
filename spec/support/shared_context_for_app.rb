@@ -12,6 +12,9 @@ RSpec.shared_context "app" do
 
     # If the feature spec should be used to validate the OAS, add the metadata `validate_oas: true` to the top level spec
     if example.metadata[:validate_oas]
+      PactBroker.configuration.openapi_enabled = true
+      require "openapi_first"
+      OpenapiFirst::Test.register("pact_broker_oas.yaml")
       OpenapiFirst::Test.app(builder.to_app)
     else
       builder.to_app
