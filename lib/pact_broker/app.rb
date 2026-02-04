@@ -27,6 +27,9 @@ require "pact_broker/api/authorization/resource_access_policy"
 require "pact_broker/api/middleware/http_debug_logs"
 require "pact_broker/application_context"
 require "pact_broker/db/advisory_lock"
+require "pact_broker/patches/alias_method_chain"
+require "omniauth_openid_connect"
+require "openapi_first"
 
 module PactBroker
 
@@ -188,6 +191,25 @@ module PactBroker
 
     def configure_middleware
       @app_builder.use PactBroker::Api::Middleware::HttpDebugLogs if configuration.http_debug_logging_enabled
+
+      if configuration.openapi_enabled
+        @app_builder.use OpenapiFirst::Middlewares::RequestValidation, configuration.openapi_file_path
+      end
+
+      if configuration.oidc_enabled
+        @app_builder.use OmniAuth::Builder do
+          provider :openid_connect, {
+            issuer: PactBroker.configuration.oidc_issuer,
+            discovery: PactBroker.configuration.oidc_discovery,
+            client_options: {
+              identifier: PactBroker.configuration.oidc_client_id,
+              secret: PactBroker.configuration.oidc_client_secret,
+              redirect_uri: ((PactBroker.configuration.base_urls || []).first || "http://localhost:9292") + "/auth/openid_connect/callback"
+            }
+          }
+        end
+      end
+
       configure_basic_auth
       configure_rack_protection
       @app_builder.use Rack::PactBroker::ApplicationContext, application_context
