@@ -6,16 +6,55 @@ on:
       - 'samples/provider/**'
       - '.github/workflows/sample_provider.yml'
 
-env:
-  PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
-  PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
-  PACTICIPANT: "Provider"
-
 jobs:
   test-and-publish:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: pact_broker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PACT_BROKER_BASE_URL: http://localhost:9292
+      PACT_BROKER_DATABASE_URL: postgres://postgres:password@localhost:5432/pact_broker
+      PACTICIPANT: "Provider"
+
     steps:
       - uses: actions/checkout@v3
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install Broker Dependencies
+        run: bundle install
+
+      - name: Start Pact Broker
+        run: |
+          bundle exec rackup -p 9292 > broker.log 2>&1 &
+          echo "Waiting for Pact Broker to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:9292 > /dev/null; then
+              echo "Pact Broker is up!"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Pact Broker failed to start."
+          cat broker.log
+          exit 1
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -42,8 +81,8 @@ jobs:
       - name: Can I Deploy?
         run: |
           docker run --rm \
+           --network host \
            -e PACT_BROKER_BASE_URL \
-           -e PACT_BROKER_TOKEN \
            pactfoundation/pact-cli:latest \
            broker can-i-deploy \
            --pacticipant ${PACTICIPANT} \
@@ -51,14 +90,14 @@ jobs:
            --to-environment production \
            --retry-while-unknown 5 \
            --retry-interval 10
-        continue-on-error: true # Allow failure if consumer not present or verification missing
+        continue-on-error: true
 
       - name: Record Deployment
         if: success()
         run: |
           docker run --rm \
+           --network host \
            -e PACT_BROKER_BASE_URL \
-           -e PACT_BROKER_TOKEN \
            pactfoundation/pact-cli:latest \
            broker record-deployment \
            --pacticipant ${PACTICIPANT} \
