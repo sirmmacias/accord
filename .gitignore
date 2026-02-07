@@ -45,3 +45,8 @@ config/pact_broker.local.yml
 vendor/
 vendor/bundle/
 vendor/bundle/**/*
+
+samples/**/bin/
+samples/**/obj/
+samples/**/pacts/
+samples/**/oas/
