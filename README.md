@@ -40,7 +40,53 @@ Features:
 * View diffs between Pact versions so you can tell what expectations have changed.
 * [Docker Pact Broker][docker]
 * A [CLI][cli] for encorporating the Pact workflow into your continuous integration process.
+* **OpenID Connect (OIDC) Support:** Authenticate users via OIDC providers.
+* **OpenAPI & Bidirectional Contract Testing:** Publish contracts validated against OpenAPI specifications.
 
+### OIDC Configuration
+
+You can configure OpenID Connect authentication using the following environment variables or configuration attributes:
+
+*   `PACT_BROKER_OIDC_ENABLED`: Set to `true` to enable OIDC.
+*   `PACT_BROKER_OIDC_ISSUER`: The OIDC issuer URL (e.g., `https://accounts.google.com`).
+*   `PACT_BROKER_OIDC_CLIENT_ID`: Your OIDC client ID.
+*   `PACT_BROKER_OIDC_CLIENT_SECRET`: Your OIDC client secret.
+*   `PACT_BROKER_OIDC_DISCOVERY`: Set to `true` (default) to use OIDC discovery.
+
+When enabled, users accessing protected UI resources will be redirected to the OIDC provider for authentication.
+
+### OpenAPI & Bidirectional Contract Testing
+
+The Pact Broker now supports publishing contracts that are validated against an OpenAPI Specification (OAS). This facilitates **Bidirectional Contract Testing**, where consumers can publish their contract expectations (e.g., a Pact file or other JSON contract) which are then cross-referenced against the provider's OpenAPI definition.
+
+#### Steps to Reproduce a Bidirectional Contract Test
+
+1.  **Prepare your Contract:** Create a JSON contract (e.g., a Pact file) representing your consumer's expectations.
+2.  **Publish via the API:** Use the `/contracts/publish` endpoint to publish your contract. This endpoint validates the request body against the defined OpenAPI schema (`pact_broker_oas.yaml`).
+
+    Example `curl` command:
+
+    ```bash
+    curl -X POST http://localhost:9292/contracts/publish \
+      -H "Content-Type: application/json" \
+      -d '{
+        "pacticipantName": "MyConsumer",
+        "pacticipantVersionNumber": "1.0.0",
+        "tags": ["dev"],
+        "branch": "main",
+        "contracts": [
+          {
+            "consumerName": "MyConsumer",
+            "providerName": "MyProvider",
+            "specification": "pact",
+            "contentType": "application/json",
+            "content": "BASE64_ENCODED_CONTENT_HERE"
+          }
+        ]
+      }'
+    ```
+
+3.  **Validation:** The broker validates the request payload against its internal OpenAPI description. If successful, it publishes the contract versions, tags, and pacts, returning a `200 OK` with publication notices.
 
 ### How would I use the Pact Broker?
 
