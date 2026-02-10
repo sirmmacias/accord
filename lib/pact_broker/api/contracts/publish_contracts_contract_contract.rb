@@ -10,8 +10,8 @@ module PactBroker
           required(:consumerName).filled(:string)
           required(:providerName).filled(:string)
           required(:content).filled(:string)
-          required(:contentType).filled(included_in?: ["application/json"])
-          required(:specification).filled(included_in?: ["pact"])
+          required(:contentType).filled(included_in?: ["application/json", "application/yaml", "application/x-yaml"])
+          required(:specification).filled(included_in?: ["pact", "oas", "openapi"])
           optional(:onConflict).filled(included_in?:["overwrite", "merge"])
           optional(:decodedParsedContent) # set in the resource
           optional(:decodedContent) # set in the resource

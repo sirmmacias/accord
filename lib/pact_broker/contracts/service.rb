@@ -130,14 +130,20 @@ module PactBroker
 
       def create_pacts(parsed_contracts, base_url)
         notices = []
-        pacts = parsed_contracts.contracts.select(&:pact?).collect do | contract_to_publish |
+        pacts = parsed_contracts.contracts.select { |c| c.pact? || c.oas? }.collect do | contract_to_publish |
+          if contract_to_publish.oas?
+            logger.info("OAS contract received", contract_to_publish.to_h)
+            notices << Notice.success("OpenAPI specification published for #{contract_to_publish.provider_name} (OAS support is minimal)")
+            next nil
+          end
+
           pact_params = create_pact_params(parsed_contracts, contract_to_publish)
           existing_pact = pact_service.find_pact(pact_params)
           listener = TriggeredWebhooksCreatedListener.new
           created_pact = create_or_merge_pact(contract_to_publish.merge?, existing_pact, pact_params.merge(pact_version_sha: contract_to_publish.pact_version_sha), listener)
           notices.concat(notices_for_pact(parsed_contracts, contract_to_publish, existing_pact, created_pact, listener, base_url))
           created_pact
-        end
+        end.compact
         return pacts, notices
       end
 

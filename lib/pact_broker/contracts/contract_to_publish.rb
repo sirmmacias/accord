@@ -10,6 +10,10 @@ module PactBroker
         specification == "pact"
       end
 
+      def oas?
+        specification == "oas" || specification == "openapi"
+      end
+
       def merge?
         on_conflict == "merge"
       end

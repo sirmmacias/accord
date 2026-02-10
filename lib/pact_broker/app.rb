@@ -28,7 +28,7 @@ require "pact_broker/api/middleware/http_debug_logs"
 require "pact_broker/application_context"
 require "pact_broker/db/advisory_lock"
 require "pact_broker/patches/alias_method_chain"
-require "omniauth_openid_connect"
+require "omniauth/openid_connect"
 require "openapi_first"
 
 module PactBroker
